@@ -98,14 +98,24 @@ services:
       ZENOH_CONFIG: "/zenoh-config.json5"
     volumes:
       - "./config/software-horn-zenoh-config.json5:/zenoh-config.json5"
-#  horn-client:
-#    build:
-#      context: "./components"
-#      dockerfile: "Dockerfile.horn-client"
-#    container_name: "horn-client"
-#    image: horn-client:latest
-#    restart: unless-stopped
-#    environment:
-#      HORN_ADDRESS: "tcp/horn-service-kuksa:15000"
-#    depends_on:
-#      - horn-service-kuksa
+
+  horn-client:
+    build:
+      context: "./components"
+      dockerfile: "Dockerfile.horn-client"
+    container_name: "horn-client"
+    image: horn-client:latest
+    restart: unless-stopped
+    volumes:
+      - "./config/horn-client-zenoh-config.json5:/zenoh-config.json5"
+    depends_on:
+      - horn-service-kuksa
+    networks:
+      - "app-net"
+
+  dozzle: # https://dozzle.dev/guide/what-is-dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080

@@ -15,7 +15,10 @@ use clap::Parser;
 use env_logger::Env;
 use log::info;
 use std::sync::Arc;
-use up_rust::communication::{InMemoryRpcServer, RpcServer};
+use up_rust::{
+    communication::{InMemoryRpcServer, RpcServer},
+    LocalUriProvider, StaticUriProvider,
+};
 use up_transport_zenoh::UPTransportZenoh;
 
 mod config;
@@ -44,10 +47,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let zenoh_config = args.get_zenoh_config()?;
     UPTransportZenoh::try_init_log_from_env();
-    let transport = UPTransportZenoh::new(zenoh_config, "//horn-service-kuksa/1C/1/0")
+    let uri_provider = Arc::new(StaticUriProvider::new("horn-service-kuksa", 0x1C, 1));
+    let transport = UPTransportZenoh::builder(uri_provider.get_authority())
+        .expect("invalid authority name")
+        .with_config(zenoh_config)
+        .build()
         .await
         .map(Arc::new)?;
-    let rpc_server = InMemoryRpcServer::new(transport.clone(), transport);
+    let rpc_server = InMemoryRpcServer::new(transport.clone(), uri_provider.clone());
 
     let (tx_sequence, rx_sequence) = tokio::sync::mpsc::channel(4);
     tokio::spawn(request_processor::receive_requests(

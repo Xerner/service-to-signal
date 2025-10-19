@@ -49,6 +49,10 @@ The [horn actuator provider](#embedded-horn-activator) publishes and subscribes 
 In the case of the Horn the topic is `Vehicle/Body/Horn/IsActive`.
 It is then the responsibility of the Zenoh-Kuksa-Provider to listen to these topics and forward the messages between the Zenoh network and the Kuksa Databroker using gRPC.
 
+### Dozzle
+
+(Dozzle is an open source log viewer for Docker containers)[https://dozzle.dev/guide/what-is-dozzle]. If installed, Docker Desktop can also be used to view the logs of the containers
+
 ## Quick Start
 
 ### Configuring the zenoh-kuksa-provider
@@ -65,11 +69,10 @@ As an alternative you can pull the service-to-signal repository directly by exec
 git clone --recurse-submodules https://github.com/eclipse-sdv-blueprints/service-to-signal.git
 ```
 
-2. After that, the easiest way to set up and start the services is by means of using the Docker Compose file in the top
-level directory:
+2. After that, the easiest way to set up and start the services is by means of using the Docker Compose file in the top level directory:
 
 ```bash
-docker compose -f service-to-signal-compose.yaml up --build --detach
+docker compose -f service-to-signal-compose.yaml up --detach
 ```
 
 This will pull or build (if necessary) the container images, create, and start the required components, namely:
@@ -79,26 +82,20 @@ This will pull or build (if necessary) the container images, create, and start t
 * [Kuksa-Zenoh Provider](#kuksa-zenoh-provider)
 * [Zenoh Router](#zenoh-router)
 * [Software Horn](#software-horn)
+* [Horn Client](#horn-client)
+* [Dozzle](#dozzle)
 
-You can then run the [horn client](#horn-client-app) to invoke the Horn Service.
+The [horn client](#horn-client) will be actively sending horn activation and deactivation requests to the [kuksa horn service](#horn-service-kuksa). You can view its logs
 
-1. In `components/horn-client/` run:
-
-```bash
-cargo run
-```
-
-For more details read the documentation in the [horn client Readme](./components/horn-client/README.md).
-
-This requires that you installed the [Rust toolchain](https://rustup.rs) on your computer. As an alternative you can umcomment the section for the `horn-client` in the `service-to-signal-compose.yaml` and re-deploy the modified Docker Compose setup.
-
-4. Check logs for Horn
-
-To see the status of the Horn and check whether the setup worked you can read the logs of the `software-horn`. To do this run:
+- in Dozzle at http://localhost:8080
+- inside Docker Desktop
+- on the command line with
 
 ```bash
-docker logs -f software-horn
+docker logs -f horn-client
 ```
+
+The [kuksa horn service](#horn-service-kuksa) will process these requests and update the respective VSS signal in the [kuksa databroker](#kuksa-databroker). The [software horn](#software-horn) will listen to the Zenoh topic corresponding to this VSS signal and log the horn state changes to the console, which can be viewed with the same methods listed above
 
 ### Optional: Configuring and starting the actuator provider (microcontroller implementation)
 
