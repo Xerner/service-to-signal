@@ -20,22 +20,28 @@ use std::collections::HashMap;
 use std::time::SystemTime;
 use tokio::select;
 
-pub(crate) async fn send_to_databroker(mut rx: tokio::sync::mpsc::Receiver<bool>, uri: Uri) {
-    info!("Connecting to Kuksa Databroker [{uri}]");
-    let mut client = KuksaClient::new(uri);
-    while let Some(is_active) = rx.recv().await {
+pub(crate) async fn send_to_kuksa_databroker(
+    mut rx_kuksa_horn_is_active: tokio::sync::mpsc::Receiver<bool>,
+    kuksa_uri: Uri,
+) {
+    info!("Connecting to Kuksa Databroker [{kuksa_uri}]");
+    let mut client = KuksaClient::new(kuksa_uri);
+    while let Some(is_active) = rx_kuksa_horn_is_active.recv().await {
         debug!("Sending: {:?}", is_active);
-        let ts = Some(prost_types::Timestamp::from(SystemTime::now()));
         let datapoints = HashMap::from([(
             "Vehicle.Body.Horn.IsActive".to_string(),
-            v1_proto::Datapoint {
-                timestamp: ts,
-                value: Some(v1_proto::datapoint::Value::Bool(is_active)),
-            },
+            create_datapoint(is_active),
         )]);
         if let Err(e) = client.set_target_values(datapoints).await {
             error!("Failed to send the Horn signal to Kuksa Databroker: {e}");
         }
+    }
+}
+
+fn create_datapoint(is_active: bool) -> v1_proto::Datapoint {
+    v1_proto::Datapoint {
+        timestamp: Some(prost_types::Timestamp::from(SystemTime::now())),
+        value: Some(v1_proto::datapoint::Value::Bool(is_active)),
     }
 }
 
