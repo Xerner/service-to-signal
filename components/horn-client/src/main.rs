@@ -1,5 +1,4 @@
 /*******************************************************************************
-* Copyright (c) 2025 Contributors to the Eclipse Foundation
 * Copyright (c) 2024 Contributors to the Eclipse Foundation
 *
 * See the NOTICE file(s) distributed with this work for additional
@@ -19,12 +18,12 @@ use std::sync::Arc;
 use up_rust::StaticUriProvider;
 
 use horn_client::config::Args;
-use horn_client::constants::{
-    HORN_SERVICE_AUTHORITY_NAME, HORN_SERVICE_ENTITY_ID, HORN_SERVICE_MAJOR_VERSION,
-};
 use horn_client::horn_loop::example_horn_loop;
 use horn_client::rpc_client::create_rpc_client;
 use horn_client::HornClient;
+use horn_common::constants::{
+    HORN_SERVICE_AUTHORITY_NAME, HORN_SERVICE_ENTITY_ID, HORN_SERVICE_MAJOR_VERSION,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

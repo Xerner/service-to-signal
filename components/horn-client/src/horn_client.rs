@@ -11,7 +11,6 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-use horn_proto::horn_service::{ActivateHornRequest, ActivateHornResponse};
 use log::{error, info};
 use std::sync::Arc;
 use up_rust::{
@@ -19,11 +18,11 @@ use up_rust::{
     LocalUriProvider, StaticUriProvider,
 };
 
-use crate::{
-    constants::{ACTIVATE_HORN_RESOURCE_ID, DEACTIVATE_HORN_RESOURCE_ID},
-    horn_requests::{
-        create_deactivate_horn_request, get_prebuilt_activation_request, PrebuiltHornRequests,
-    },
+use horn_common::constants::{ACTIVATE_HORN_RESOURCE_ID, DEACTIVATE_HORN_RESOURCE_ID};
+use horn_proto::horn_service::{ActivateHornRequest, ActivateHornResponse};
+
+use crate::horn_requests::{
+    create_deactivate_horn_request, get_prebuilt_activation_request, PrebuiltHornRequests,
 };
 
 /// A client for interacting with the COVESA Horn service over uProtocol

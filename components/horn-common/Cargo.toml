@@ -1,5 +1,5 @@
 #*******************************************************************************
-# Copyright (c) 2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -12,17 +12,6 @@
 #******************************************************************************/
 
 [package]
-name = "horn-client"
+name = "horn-common"
 version = "0.1.0"
 edition = "2021"
-
-[dependencies]
-clap = { workspace = true }
-env_logger = { workspace = true }
-horn-proto = { workspace = true }
-horn-common = { workspace = true }
-log = { workspace = true }
-protobuf = { workspace = true }
-tokio = { workspace = true }
-up-rust = { workspace = true }
-up-transport-zenoh = { workspace = true }

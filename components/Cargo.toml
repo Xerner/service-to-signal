@@ -12,7 +12,7 @@
 #******************************************************************************/
 
 [workspace]
-members = ["horn-client", "horn-proto", "horn-service-kuksa", "software-horn"]
+members = ["horn-client", "horn-proto", "horn-service-kuksa", "software-horn", "horn-common"]
 resolver = "2"
 
 [workspace.package]
@@ -26,6 +26,7 @@ async-trait = { version = "0.1" }
 chrono = { version = "0.4", default-features = false }
 clap = { version = "4.5.18", features = ["derive", "env"] }
 horn-proto = { path = "horn-proto" }
+horn-common = { path = "horn-common" }
 log = { version = "0.4.22" }
 env_logger = { version = "0.11.5" }
 protobuf = { version = "3.5.0" }

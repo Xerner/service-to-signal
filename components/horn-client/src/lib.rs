@@ -15,7 +15,6 @@ pub(crate) mod horn_client;
 pub(crate) mod horn_requests;
 
 pub mod config;
-pub mod constants;
 pub use horn_client::HornClient;
 pub mod horn_loop;
 pub mod rpc_client;
