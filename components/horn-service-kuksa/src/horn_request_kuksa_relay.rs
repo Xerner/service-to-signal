@@ -1,28 +1,30 @@
 use log::{debug, error};
-use std::cell::RefCell;
 use tokio::{
     select,
-    sync::mpsc::{Receiver, Sender},
+    sync::{
+        mpsc::{Receiver, Sender},
+        Mutex,
+    },
 };
 
-use horn_proto::{
-    horn_service::ActivateHornRequest,
-    horn_topics::{HornMode, HornSequence},
-};
+use horn_proto::{horn_service::ActivateHornRequest, horn_topics::HornMode};
 
 /**
  * Handles processing incoming [ActivateHornRequest] instances and relaying them to Kuksa.
  */
-struct HornRequestKuksaRelay {
-    rx_requests: RefCell<Receiver<Option<ActivateHornRequest>>>,
+pub struct HornRequestKuksaRelay {
+    rx_requests: Mutex<Receiver<Option<ActivateHornRequest>>>,
     tx_kuksa_horn_is_active: Sender<bool>,
 }
 
 impl HornRequestKuksaRelay {
-    pub fn new(rx_requests: Receiver<Option<ActivateHornRequest>>, tx_kuksa: Sender<bool>) -> Self {
+    pub fn new(
+        rx_requests: Receiver<Option<ActivateHornRequest>>,
+        tx_kuksa_horn_is_active: Sender<bool>,
+    ) -> Self {
         HornRequestKuksaRelay {
-            rx_requests: RefCell::new(rx_requests),
-            tx_kuksa_horn_is_active: tx_kuksa,
+            rx_requests: Mutex::new(rx_requests),
+            tx_kuksa_horn_is_active,
         }
     }
 
@@ -33,8 +35,9 @@ impl HornRequestKuksaRelay {
      * Stops when the request channel returns None.
      */
     pub(crate) async fn relay_requests_to_kuksa(&self) {
-        while let Some(activate_horn_request) = self.rx_requests.borrow_mut().recv().await {
-            let mut rx_requests = self.rx_requests.borrow_mut();
+        let mut rx_requests = self.rx_requests.lock().await;
+        while let Some(activate_horn_request) = rx_requests.recv().await {
+            let mut rx_requests = self.rx_requests.lock().await;
             // this select! macro will kill the request_apply functions execution if the
             // rx_request_channel receives a new request
             let _: Option<()> = select! {

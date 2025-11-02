@@ -12,7 +12,7 @@
 *******************************************************************************/
 
 use horn_proto::horn_service::{
-    ActivateHornRequest, ActivateHornResponse, DeactivateHornRequest, DeactivateHornResponse,
+    ActivateHornRequest, DeactivateHornRequest, DeactivateHornResponse,
 };
 use horn_proto::status::Status;
 use log::info;
@@ -20,11 +20,11 @@ use protobuf::MessageField;
 use up_rust::communication::{RequestHandler, ServiceInvocationError, UPayload};
 use up_rust::UAttributes;
 
-pub(crate) struct ActivateHorn {
+pub(crate) struct DeactivateHornRpcRequestHandler {
     tx_sequence_channel: tokio::sync::mpsc::Sender<Option<ActivateHornRequest>>,
 }
 
-impl ActivateHorn {
+impl DeactivateHornRpcRequestHandler {
     pub fn new(
         tx_sequence_channel: tokio::sync::mpsc::Sender<Option<ActivateHornRequest>>,
     ) -> Self {
@@ -35,46 +35,7 @@ impl ActivateHorn {
 }
 
 #[async_trait::async_trait]
-impl RequestHandler for ActivateHorn {
-    async fn handle_request(
-        &self,
-        _resource_id: u16,
-        _message_attributes: &UAttributes,
-        request_payload: Option<UPayload>,
-    ) -> Result<Option<UPayload>, ServiceInvocationError> {
-        info!("Handle new request to apply horn sequence");
-
-        let req = request_payload
-            .unwrap()
-            .extract_protobuf::<ActivateHornRequest>()
-            .unwrap();
-        let _ = self.tx_sequence_channel.send(Some(req.clone())).await;
-
-        let response = ActivateHornResponse {
-            status: MessageField::some(Status::new()),
-            ..Default::default()
-        };
-        let payload = UPayload::try_from_protobuf(response).unwrap();
-        Ok(Some(payload))
-    }
-}
-
-pub(crate) struct DeactivateHorn {
-    tx_sequence_channel: tokio::sync::mpsc::Sender<Option<ActivateHornRequest>>,
-}
-
-impl DeactivateHorn {
-    pub fn new(
-        tx_sequence_channel: tokio::sync::mpsc::Sender<Option<ActivateHornRequest>>,
-    ) -> Self {
-        Self {
-            tx_sequence_channel,
-        }
-    }
-}
-
-#[async_trait::async_trait]
-impl RequestHandler for DeactivateHorn {
+impl RequestHandler for DeactivateHornRpcRequestHandler {
     async fn handle_request(
         &self,
         _resource_id: u16,

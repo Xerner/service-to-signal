@@ -14,21 +14,15 @@
 use clap::Parser;
 use env_logger::Env;
 use log::info;
-use std::sync::Arc;
-use up_rust::{
-    communication::{InMemoryRpcServer, RpcServer},
-    LocalUriProvider, StaticUriProvider,
-};
-use up_transport_zenoh::UPTransportZenoh;
 
-use horn_service_kuksa::{config, request_handler, request_processor, HornServer};
+use horn_service_kuksa::{config, HornServer};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
     let args = config::Args::parse();
     info!("Starting the Horn service");
-    let horn_server = HornServer::from_args(args.clone());
+    let horn_server = HornServer::from_args(args.clone()).await?;
     horn_server.start().await?;
     std::thread::park();
     Ok(())

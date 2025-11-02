@@ -32,10 +32,3 @@ RUN apt-get update && \
 RUN curl -fsSL https://get.docker.com | sh
 
 USER ${USERNAME}
-
-# Add user to docker group and set up permissions
-RUN groupadd -f docker && \
-    usermod -aG docker ${USERNAME}
-
-# Install cargo cli tools
-RUN cargo install cargo-nextest cargo-deny cargo-tarpaulin --locked

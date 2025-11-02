@@ -12,10 +12,11 @@
 *******************************************************************************/
 
 use log::{error, info};
+use protobuf::MessageFull;
 use std::sync::Arc;
 use up_rust::{
-    communication::{CallOptions, RpcClient, UPayload},
-    LocalUriProvider, StaticUriProvider,
+    communication::{CallOptions, RpcClient, ServiceInvocationError, UPayload},
+    LocalUriProvider, StaticUriProvider, UUri,
 };
 
 use horn_common::constants::{ACTIVATE_HORN_RESOURCE_ID, DEACTIVATE_HORN_RESOURCE_ID};
@@ -60,29 +61,7 @@ impl HornClient {
             .get_resource_uri(ACTIVATE_HORN_RESOURCE_ID);
 
         let payload = UPayload::try_from_protobuf(activate_horn_request)?;
-        match self
-            .rpc_client
-            .invoke_method(
-                activate_horn_uri.clone(),
-                CallOptions::for_rpc_request(1_000, None, None, None),
-                Some(payload),
-            )
-            .await
-        {
-            Ok(Some(payload)) => {
-                let response = payload.extract_protobuf::<ActivateHornResponse>()?;
-                info!("Activate Horn returned message: {}", response);
-                Ok(())
-            }
-            Ok(None) => {
-                info!("The activate horn request returned an empty response");
-                Ok(())
-            }
-            Err(e) => {
-                error!("The activate horn request returned the error: {:?}", e);
-                Ok(())
-            }
-        }
+        self.send_rpc_request(activate_horn_uri, payload).await
     }
 
     /// Sends a request to the vehicles horn service to deactivate the horn
@@ -92,28 +71,73 @@ impl HornClient {
             .get_resource_uri(DEACTIVATE_HORN_RESOURCE_ID);
         let deactivate_horn_request = create_deactivate_horn_request();
         let deactivate_payload = UPayload::try_from_protobuf(deactivate_horn_request)?;
+        self.send_rpc_request(deactivate_horn_uri, deactivate_payload)
+            .await
+    }
 
+    async fn send_rpc_request(
+        &self,
+        uri: UUri,
+        request: UPayload,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         match self
             .rpc_client
             .invoke_method(
-                deactivate_horn_uri.clone(),
+                uri.clone(),
                 CallOptions::for_rpc_request(1_000, None, None, None),
-                Some(deactivate_payload),
+                Some(request),
             )
             .await
         {
-            Ok(Some(_)) => {
-                info!("The deactivate horn request returned successfully");
-                Ok(())
-            }
-            Ok(None) => {
-                error!("The deactivate horn request returned an empty response");
-                Ok(())
-            }
-            Err(e) => {
-                error!("The deactivate horn request returned the error: {:?}", e);
-                Ok(())
-            }
+            Ok(Some(payload)) => self.handle_rcp_successful_response::<ActivateHornResponse>(
+                "activate horn",
+                Some(payload),
+            ),
+            Ok(None) => self.handle_rcp_empty_response("activate horn"),
+            Err(e) => self.handle_rpc_error_response("activate horn", e),
         }
+    }
+
+    fn handle_rcp_successful_response<MessageImpl: MessageFull>(
+        &self,
+        context: &str,
+        returned_message: Option<UPayload>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        if returned_message.is_none() {
+            error!(
+                "The horn service RPC request to '{}' was successful",
+                context
+            );
+            return Ok(());
+        }
+        let response = returned_message
+            .unwrap()
+            .extract_protobuf::<MessageImpl>()
+            .unwrap();
+        info!(
+            "The horn service RPC request to '{}' was successful with the payload: {:?}",
+            context, response
+        );
+        Ok(())
+    }
+
+    fn handle_rcp_empty_response(&self, context: &str) -> Result<(), Box<dyn std::error::Error>> {
+        error!(
+            "The horn service RPC request to '{}' returned an empty response",
+            context
+        );
+        Ok(())
+    }
+
+    fn handle_rpc_error_response(
+        &self,
+        context: &str,
+        error: ServiceInvocationError,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        error!(
+            "The horn service RPC request to '{}' returned an error: {:?}",
+            context, error
+        );
+        Ok(())
     }
 }
