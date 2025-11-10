@@ -11,12 +11,17 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-pub(crate) mod client;
-pub mod prebuilt_horn_requests;
-pub(crate) mod rpc_client;
+use std::sync::Arc;
+use up_rust::StaticUriProvider;
 
-pub use prebuilt_horn_requests::get_prebuilt_activation_request;
-pub use prebuilt_horn_requests::PrebuiltHornRequests;
-pub mod config;
-pub use client::HornClient;
-pub use rpc_client::HornRpcClient;
+use crate::constants::{
+    HORN_SERVICE_AUTHORITY_NAME, HORN_SERVICE_ENTITY_ID, HORN_SERVICE_MAJOR_VERSION,
+};
+
+pub fn default_horn_service_uri_provider() -> Arc<StaticUriProvider> {
+    Arc::new(StaticUriProvider::new(
+        HORN_SERVICE_AUTHORITY_NAME,
+        HORN_SERVICE_ENTITY_ID,
+        HORN_SERVICE_MAJOR_VERSION,
+    ))
+}

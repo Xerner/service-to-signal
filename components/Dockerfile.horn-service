@@ -29,14 +29,14 @@ RUN mkdir components
 COPY . components/
 WORKDIR /home/rust/src/components
 
-RUN cargo build --package horn-service-kuksa --release --target $BUILDTARGET
-RUN mv target/${BUILDTARGET}/release/horn-service-kuksa /home/rust
+RUN cargo build --package horn-service --release --target $BUILDTARGET
+RUN mv target/${BUILDTARGET}/release/horn-service /home/rust
 
 FROM scratch
 
-COPY --from=builder /home/rust/horn-service-kuksa /app/horn-service-kuksa
+COPY --from=builder /home/rust/horn-service /app/horn-service
 #TODO add licenses for dependencies
 #COPY LICENSES /app/
 
 EXPOSE 15000
-ENTRYPOINT [ "/app/horn-service-kuksa", "-k" ]
+ENTRYPOINT [ "/app/horn-service", "-k" ]

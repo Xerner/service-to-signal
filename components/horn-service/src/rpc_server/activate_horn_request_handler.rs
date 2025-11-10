@@ -11,47 +11,42 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-use horn_proto::horn_service::{
-    ActivateHornRequest, DeactivateHornRequest, DeactivateHornResponse,
-};
+use horn_proto::horn_service::{ActivateHornRequest, ActivateHornResponse};
 use horn_proto::status::Status;
 use log::info;
 use protobuf::MessageField;
+use tokio::sync::mpsc::Sender;
 use up_rust::communication::{RequestHandler, ServiceInvocationError, UPayload};
 use up_rust::UAttributes;
 
-pub(crate) struct DeactivateHornRpcRequestHandler {
-    tx_sequence_channel: tokio::sync::mpsc::Sender<Option<ActivateHornRequest>>,
+pub(crate) struct ActivateHornRpcRequestHandler {
+    horn_request_receiver: Sender<Option<ActivateHornRequest>>,
 }
 
-impl DeactivateHornRpcRequestHandler {
-    pub fn new(
-        tx_sequence_channel: tokio::sync::mpsc::Sender<Option<ActivateHornRequest>>,
-    ) -> Self {
+impl ActivateHornRpcRequestHandler {
+    pub fn new(horn_request_receiver: Sender<Option<ActivateHornRequest>>) -> Self {
         Self {
-            tx_sequence_channel,
+            horn_request_receiver,
         }
     }
 }
 
 #[async_trait::async_trait]
-impl RequestHandler for DeactivateHornRpcRequestHandler {
+impl RequestHandler for ActivateHornRpcRequestHandler {
     async fn handle_request(
         &self,
         _resource_id: u16,
         _message_attributes: &UAttributes,
         request_payload: Option<UPayload>,
     ) -> Result<Option<UPayload>, ServiceInvocationError> {
-        info!("Handle new deactivation request for the horn.");
+        info!("ActivateHornRequest received");
 
-        //Expect the deactivate horn request
-        //to be empty.
-        let _req = request_payload
+        let req = request_payload
             .unwrap()
-            .extract_protobuf::<DeactivateHornRequest>()
+            .extract_protobuf::<ActivateHornRequest>()
             .unwrap();
-        let _ = self.tx_sequence_channel.send(None).await;
-        let response = DeactivateHornResponse {
+        let _ = self.horn_request_receiver.send(Some(req.clone())).await;
+        let response = ActivateHornResponse {
             status: MessageField::some(Status::new()),
             ..Default::default()
         };

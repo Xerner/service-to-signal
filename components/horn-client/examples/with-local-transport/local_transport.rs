@@ -11,38 +11,28 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-use clap::Parser;
 use env_logger::Env;
 use horn_common::uri::default_horn_service_uri_provider;
 use log::info;
 use std::error::Error;
 use std::sync::Arc;
 use up_rust::communication::InMemoryRpcClient;
-use up_rust::LocalUriProvider;
-use up_transport_zenoh::UPTransportZenoh;
+use up_rust::local_transport::LocalTransport;
 
-use horn_client::config::Args;
 use horn_client::{HornClient, HornRpcClient, PrebuiltHornRequests};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-    let args = Args::parse();
-    let horn_client = default_client_setup(args).await?;
-    info!("Starting the client for the COVESA Horn service over uProtocollllll");
+    let horn_client = default_client_setup().await?;
+    info!("Starting the client for the COVESA Horn service over a uProtocol local transport");
     example_horn_loop(horn_client).await?;
     Ok(())
 }
 
-async fn default_client_setup(args: Args) -> Result<HornClient, Box<dyn Error>> {
+async fn default_client_setup() -> Result<HornClient, Box<dyn Error>> {
     let horn_service_uri_provider = default_horn_service_uri_provider();
-    let config = args.get_zenoh_config().expect("Failed to get zenoh config");
-    let transport = UPTransportZenoh::builder(horn_service_uri_provider.get_authority())
-        .expect("invalid authority name")
-        .with_config(config)
-        .build()
-        .await
-        .map(Arc::new)?;
+    let transport = Arc::new(LocalTransport::default());
     let rpc_client = InMemoryRpcClient::new(transport, horn_service_uri_provider.clone()).await?;
     let horn_rpc_client =
         HornRpcClient::new(horn_service_uri_provider, Box::new(rpc_client)).await?;

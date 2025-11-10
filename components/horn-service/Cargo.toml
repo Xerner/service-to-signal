@@ -12,7 +12,7 @@
 #******************************************************************************/
 
 [package]
-name = "horn-service-kuksa"
+name = "horn-service"
 version = "0.1.0"
 edition = "2021"
 license.workspace = true
@@ -33,3 +33,7 @@ up-rust = { workspace = true }
 up-transport-zenoh = { workspace = true }
 # use http version as in kuksa-rust-sdk
 http = "0.2.12"
+
+[[example]]
+name = "with-local-transport"
+path = "examples/with-local-transport/local_transport.rs"

@@ -11,12 +11,22 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-pub(crate) mod client;
-pub mod prebuilt_horn_requests;
-pub(crate) mod rpc_client;
+use std::path::PathBuf;
 
-pub use prebuilt_horn_requests::get_prebuilt_activation_request;
-pub use prebuilt_horn_requests::PrebuiltHornRequests;
-pub mod config;
-pub use client::HornClient;
-pub use rpc_client::HornRpcClient;
+use zenoh::Config;
+
+#[derive(clap::Parser)]
+pub struct Args {
+    #[arg(short, long, env = "ZENOH_CONFIG")]
+    /// A Zenoh configuration file.
+    config: PathBuf,
+    #[arg(short, long, default_value = "true", env = "IS_SOUND_ENABLED")]
+    sound: bool,
+}
+
+impl Args {
+    pub fn get_zenoh_config(&self) -> Result<Config, Box<dyn std::error::Error>> {
+        // Load the config from file path
+        zenoh::config::Config::from_file(&self.config).map_err(|e| e as Box<dyn std::error::Error>)
+    }
+}

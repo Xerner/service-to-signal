@@ -11,12 +11,10 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-pub(crate) mod client;
-pub mod prebuilt_horn_requests;
-pub(crate) mod rpc_client;
+pub(crate) mod activate_horn_request_handler;
+pub(crate) mod deactivate_horn_request_handler;
+mod rpc_server;
 
-pub use prebuilt_horn_requests::get_prebuilt_activation_request;
-pub use prebuilt_horn_requests::PrebuiltHornRequests;
-pub mod config;
-pub use client::HornClient;
-pub use rpc_client::HornRpcClient;
+pub(crate) use activate_horn_request_handler::ActivateHornRpcRequestHandler;
+pub(crate) use deactivate_horn_request_handler::DeactivateHornRpcRequestHandler;
+pub use rpc_server::HornRpcServer;

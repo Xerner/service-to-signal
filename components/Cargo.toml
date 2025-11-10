@@ -12,7 +12,7 @@
 #******************************************************************************/
 
 [workspace]
-members = ["horn-client", "horn-proto", "horn-service-kuksa", "software-horn", "horn-common"]
+members = ["horn-client", "horn-proto", "horn-service", "software-horn", "horn-common"]
 resolver = "2"
 
 [workspace.package]
@@ -31,5 +31,5 @@ log = { version = "0.4.22" }
 env_logger = { version = "0.11.5" }
 protobuf = { version = "3.5.0" }
 tokio = { version = "1.40.0" }
-up-rust = { version = "0.7.1" }
+up-rust = { version = "0.7.1", features = ["util"] }
 up-transport-zenoh = { version = "0.8.0" }

@@ -13,26 +13,22 @@
 
 use std::{error::Error, sync::Arc};
 use tokio::sync::mpsc::Sender;
-use up_rust::{
-    communication::{InMemoryRpcServer, RpcServer},
-    LocalUriProvider, UTransport,
-};
+use up_rust::communication::RpcServer;
 
-use crate::request_handlers::{ActivateHornRpcRequestHandler, DeactivateHornRpcRequestHandler};
+use crate::rpc_server::{ActivateHornRpcRequestHandler, DeactivateHornRpcRequestHandler};
 use horn_common::constants::{ACTIVATE_HORN_RESOURCE_ID, DEACTIVATE_HORN_RESOURCE_ID};
+use horn_proto::horn_service::ActivateHornRequest;
 
 pub struct HornRpcServer {
-    horn_request_sender: Sender<Option<horn_proto::horn_service::ActivateHornRequest>>,
-    rpc_server: InMemoryRpcServer,
+    rpc_server: Box<dyn RpcServer>,
+    horn_request_sender: Sender<Option<ActivateHornRequest>>,
 }
 
 impl HornRpcServer {
     pub fn new(
-        transport: Arc<dyn UTransport>,
-        uri_provider: Arc<dyn LocalUriProvider>,
-        horn_request_sender: Sender<Option<horn_proto::horn_service::ActivateHornRequest>>,
+        rpc_server: Box<dyn RpcServer>,
+        horn_request_sender: Sender<Option<ActivateHornRequest>>,
     ) -> Result<Self, Box<dyn Error>> {
-        let rpc_server = InMemoryRpcServer::new(transport.clone(), uri_provider.clone());
         Ok(HornRpcServer {
             rpc_server,
             horn_request_sender,

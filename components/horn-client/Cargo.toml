@@ -26,3 +26,7 @@ protobuf = { workspace = true }
 tokio = { workspace = true }
 up-rust = { workspace = true }
 up-transport-zenoh = { workspace = true }
+
+[[example]]
+name = "with-local-transport"
+path = "examples/with-local-transport/local_transport.rs"

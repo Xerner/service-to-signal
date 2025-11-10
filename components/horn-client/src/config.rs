@@ -11,6 +11,7 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
+use log::info;
 use std::path::PathBuf;
 use up_transport_zenoh::zenoh_config;
 
@@ -29,6 +30,7 @@ pub struct Args {
 impl Args {
     pub fn get_zenoh_config(&self) -> Result<zenoh_config::Config, Box<dyn std::error::Error>> {
         // Load the config from file path
+        info!("Using Zenoh config file at {:?}", self.config);
         zenoh_config::Config::from_file(&self.config).map_err(|e| e as Box<dyn std::error::Error>)
     }
 }

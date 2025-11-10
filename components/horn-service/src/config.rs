@@ -11,14 +11,21 @@
 * SPDX-License-Identifier: EPL-2.0
 *******************************************************************************/
 
-use std::path::PathBuf;
+use std::{error::Error, path::PathBuf};
 
 use http::Uri;
+use log::info;
 use up_transport_zenoh::zenoh_config::{self, Config};
 
 #[derive(clap::Parser, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Args {
-    #[arg(short, long, env = "ZENOH_CONFIG", value_name = "PATH")]
+    #[arg(
+        short,
+        long,
+        env = "ZENOH_CONFIG",
+        value_name = "PATH",
+        default_value = "/zenoh-config.json5"
+    )]
     /// A Zenoh configuration file.
     /// If not set, the service uses Zenoh's default configuration.
     config: Option<PathBuf>,
@@ -38,9 +45,10 @@ fn valid_uri(uri: &str) -> Result<Uri, String> {
 }
 
 impl Args {
-    pub fn get_zenoh_config(&self) -> Result<zenoh_config::Config, Box<dyn std::error::Error>> {
+    pub fn get_zenoh_config(&self) -> Result<zenoh_config::Config, Box<dyn Error>> {
         if let Some(path) = self.config.as_ref() {
-            zenoh_config::Config::from_file(path).map_err(|e| e as Box<dyn std::error::Error>)
+            info!("Using Zenoh config file at {:?}", path);
+            zenoh_config::Config::from_file(path).map_err(|e| e as Box<dyn Error>)
         } else {
             Ok(Config::default())
         }

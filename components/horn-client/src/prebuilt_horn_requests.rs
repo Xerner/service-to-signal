@@ -40,23 +40,23 @@ fn create_sequenced_horn_request() -> ActivateHornRequest {
         command: vec![HornSequence {
             horn_cycles: vec![
                 HornCycle {
-                    on_time: 100,
-                    off_time: 100,
+                    on_time: 1000,
+                    off_time: 1000,
                     ..Default::default()
                 },
                 HornCycle {
-                    on_time: 200,
-                    off_time: 300,
+                    on_time: 2000,
+                    off_time: 3000,
                     ..Default::default()
                 },
                 HornCycle {
-                    on_time: 100,
-                    off_time: 200,
+                    on_time: 1000,
+                    off_time: 2000,
                     ..Default::default()
                 },
                 HornCycle {
-                    on_time: 10000,
-                    off_time: 500,
+                    on_time: 5000,
+                    off_time: 1000,
                     ..Default::default()
                 },
             ],

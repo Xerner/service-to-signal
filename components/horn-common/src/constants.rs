@@ -18,7 +18,7 @@
 ///
 /// This value should match the name of the container in the docker compose file used to deploy
 /// the horn service
-pub const HORN_SERVICE_AUTHORITY_NAME: &str = "horn-service-kuksa";
+pub const HORN_SERVICE_AUTHORITY_NAME: &str = "horn-service";
 
 /// The expected ID that represents the horn services software component. It is simply an
 /// identifier with no deeper meaning
