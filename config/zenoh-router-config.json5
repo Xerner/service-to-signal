@@ -1,4 +1,5 @@
 {
+  "mode": "router",
   plugins: {
     rest: {
       // activate and configure the REST plugin

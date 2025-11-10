@@ -18,7 +18,7 @@ In the following, we give a more detailed overview of the different involved com
 
 ### Horn Service Kuksa
 
-The [_Horn Service Kuksa_](./components/horn-service-kuksa/README.md) provides the interfaces defined in the [COVESA Horn uService](https://github.com/COVESA/uservices/blob/main/src/main/proto/vehicle/body/horn/v1/horn_service.proto).
+The [_Horn Service Kuksa_](./components/horn-service/README.md) provides the interfaces defined in the [COVESA Horn uService](https://github.com/COVESA/uservices/blob/main/src/main/proto/vehicle/body/horn/v1/horn_service.proto).
 The implementation utilizes the [`Vehicle.Body.Horn.IsActive` COVESA VSS Signal](https://github.com/COVESA/vehicle_signal_specification/blob/6024c4b29065b37c074649a1a65396b9d4de9b55/spec/Body/Body.vspec#L65) managed by the Eclipse Kuksa Databroker.
 
 The service can be invoked by means of uProtocol using Eclipse Zenoh as the transport layer.
@@ -85,7 +85,7 @@ This will pull or build (if necessary) the container images, create, and start t
 * [Horn Client](#horn-client)
 * [Dozzle](#dozzle)
 
-The [horn client](#horn-client) will be actively sending horn activation and deactivation requests to the [kuksa horn service](#horn-service-kuksa). You can view its logs
+The [horn client](#horn-client) will be actively sending horn activation and deactivation requests to the [horn service](#horn-service). You can view its logs
 
 - in Dozzle at http://localhost:8080
 - inside Docker Desktop
@@ -95,7 +95,7 @@ The [horn client](#horn-client) will be actively sending horn activation and dea
 docker logs -f horn-client
 ```
 
-The [kuksa horn service](#horn-service-kuksa) will process these requests and update the respective VSS signal in the [kuksa databroker](#kuksa-databroker). The [software horn](#software-horn) will listen to the Zenoh topic corresponding to this VSS signal and log the horn state changes to the console, which can be viewed with the same methods listed above
+The [horn service](#horn-service) will process these requests and update the respective VSS signal in the [kuksa databroker](#kuksa-databroker). The [software horn](#software-horn) will listen to the Zenoh topic corresponding to this VSS signal and log the horn state changes to the console, which can be viewed with the same methods listed above
 
 ### Optional: Configuring and starting the actuator provider (microcontroller implementation)
 

@@ -26,6 +26,9 @@ services:
     restart: unless-stopped
     ports:
       - "0.0.0.0:7447:7447"
+      - "0.0.0.0:8000:8000"
+      - "[::]:7447:7447"
+      - "[::]:8000:8000"
     networks:
       - "app-net"
     volumes:
@@ -34,11 +37,11 @@ services:
       RUST_LOG: "INFO"
       ZENOH_CONFIG: "/zenoh-config.json5"
 
-  horn-service-kuksa:
+  horn-service:
     build:
       context: "./components"
       dockerfile: "Dockerfile.horn-service"
-    container_name: "horn-service-kuksa"
+    container_name: "horn-service"
     image: horn-service:latest
     restart: unless-stopped
     depends_on:
@@ -48,7 +51,7 @@ services:
       - "app-net"
     environment:
       KUKSA_ADDRESS: "http://kuksa-databroker:55556"
-      KUKSA_ENABLED: "true"
+      KUKSA_ENABLED: "false"
       ZENOH_CONFIG: "/zenoh-config.json5"
     volumes:
       - "./config/horn-service-zenoh-config.json5:/zenoh-config.json5"
@@ -105,11 +108,11 @@ services:
       dockerfile: "Dockerfile.horn-client"
     container_name: "horn-client"
     image: horn-client:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     volumes:
       - "./config/horn-client-zenoh-config.json5:/zenoh-config.json5"
     depends_on:
-      - horn-service-kuksa
+      - horn-service
     networks:
       - "app-net"
 

@@ -15,6 +15,12 @@ FROM mcr.microsoft.com/devcontainers/rust:latest
 ARG USERNAME=vscode
 ARG TARGETARCH
 
+# Add Eclipse Zenoh public key to apt keyring
+# and add the repository to sources.list
+RUN curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | sudo gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/zenoh-public-key.gpg] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
+
+
 RUN apt-get update && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y install \
@@ -24,6 +30,7 @@ RUN apt-get update && \
     zip \
     build-essential \
     protobuf-compiler \
+    zenoh
     && \
     rm -rf /var/lib/apt/lists/*
 

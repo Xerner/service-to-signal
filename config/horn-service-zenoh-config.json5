@@ -4,7 +4,8 @@
   connect: {
     endpoints: [
       // "<proto>/<address>"
-      "tcp/zenoh-router:7447"
+      "tcp/localhost:7447"
+    //   "tcp/zenoh-router:7447"
     ],
   },
 

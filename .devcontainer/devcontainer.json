@@ -21,6 +21,19 @@
     "containerEnv": {
         "WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
     },
+    "forwardPorts": [
+        7447,
+        8000
+    ],
+    "portsAttributes": {
+        "7447": {
+            "label": "Zenoh Router"
+        },
+        "8000": {
+            "label": "Zenoh REST API",
+            "protocol": "http"
+        }
+    },
     "mounts": [
         {
             "type": "bind",
